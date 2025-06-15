@@ -8,6 +8,9 @@ class ButtonMaker:
         self._footer_button = []
 
     def url_button(self, key, link, position=None):
+        if not link or not isinstance(link, str) or not link.startswith(("http://", "https://")):
+            # Jangan tambahkan tombol jika link tidak valid
+            return
         if not position:
             self._button.append(InlineKeyboardButton(text=key, url=link))
         elif position == "header":
