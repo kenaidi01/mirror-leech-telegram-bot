@@ -27,6 +27,7 @@ from .. import (
     nzb_options,
     jd_listener_lock,
     excluded_extensions,
+    included_extensions,
     auth_chats,
     sudo_users,
 )
@@ -35,7 +36,7 @@ from ..helper.ext_utils.bot_utils import (
     new_task,
 )
 from ..core.config_manager import Config
-from ..core.mltb_client import TgClient
+from ..core.telegram_manager import TgClient
 from ..core.torrent_manager import TorrentManager
 from ..core.startup import update_qb_options, update_nzb_options, update_variables
 from ..helper.ext_utils.db_handler import database
@@ -274,6 +275,12 @@ async def edit_variable(_, message, pre_message, key):
         for x in fx:
             x = x.lstrip(".")
             excluded_extensions.append(x.strip().lower())
+    elif key == "INCLUDED_EXTENSIONS":
+        fx = value.split()
+        included_extensions.clear()
+        for x in fx:
+            x = x.lstrip(".")
+            included_extensions.append(x.strip().lower())
     elif key == "GDRIVE_ID":
         if drives_names and drives_names[0] == "Main":
             drives_ids[0] = value
@@ -584,9 +591,13 @@ async def edit_bot_settings(client, query):
                     intervals["status"][key] = SetInterval(
                         value, update_status_message, key
                     )
+        elif data[2] == "RSS_SIZE_LIMIT":
+            value = 0
         elif data[2] == "EXCLUDED_EXTENSIONS":
             excluded_extensions.clear()
             excluded_extensions.extend(["aria2", "!qB"])
+        elif data[2] == "INCLUDED_EXTENSIONS":
+            included_extensions.clear()
         elif data[2] == "TORRENT_TIMEOUT":
             await TorrentManager.change_aria2_option("bt-stop-timeout", "0")
             await database.update_aria2("bt-stop-timeout", "0")
